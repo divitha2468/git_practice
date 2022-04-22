@@ -2,6 +2,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.*;
 abstract class app
@@ -48,7 +49,7 @@ abstract class app
         		System.out.println(e);
         }
 	}
-	public static  void update()
+	public static  void update() throws SQLException
 	{
 		Scanner sc=new Scanner(System.in);
 		System.out.print("\n Enter accout num of sender :");
@@ -60,30 +61,67 @@ abstract class app
 		try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection    con = DriverManager.getConnection("jdbc:mysql://localhost:3306/employee", "root", "Pass@123");
-            Statement stmt=con.createStatement();
-//            PreparedStatement ps = con.prepareStatement("update emp set salary = ? where id = ?");
-//            Scanner sc = new Scanner(System.in);
-            PreparedStatement ps2 = con.prepareStatement("Select balance from bank where accountnum=?");
-	           ps2.setInt(1, number);
-	           ResultSet rs1=ps2.executeQuery();
-            while(rs1.next())
-	            {
-	                System.out.println(rs1.getInt(1));
-	            }
-            int balance1=rs1.getInt(1)-amount;
-            System.out.println(balance1);
-            ResultSet rs2=stmt.executeQuery("Select balance from bank where accountnum="+number2);       
-            int balance2=rs2.getInt(1)+amount;
-            System.out.println(balance2);
-            stmt.execute("update bank set balance = "+balance1+" where accountnum ="+number);
-            stmt.execute("update bank set balance = "+balance2+" where accountnum ="+number2);
-            System.out.println("update done");
-            con.close();
-        } catch (Exception e) {
+//            Statement stmt=con.createStatement();
+            int x=0,x1=0;
+
+    		PreparedStatement ps = con.prepareStatement("select * from bank where accountnum=?");
+
+
+
+    		ps.setInt(1, number);
+    		ResultSet rs=ps.executeQuery();
+
+
+    		while(rs.next())
+    		x=rs.getInt(5);
+
+
+
+    		//System.out.println(x);
+
+
+
+    		PreparedStatement ps2 = con.prepareStatement("select * from bank where accountnum=?");
+    		ps2.setInt(1, number2);
+
+    		ResultSet rs1=ps2.executeQuery();
+
+    		while(rs1.next())
+    		x1=rs1.getInt(5);
+
+
+    		if(x>=amount) //"update bankAcc set money=? where name=name1"
+    		{
+    		x=x-amount;
+    		PreparedStatement ps1 = con.prepareStatement("update bank set balance=? where accountnum=?");
+    		ps1.setInt(1, x);
+    		ps1.setInt(2, number);
+    		ps1.execute();
+
+    		PreparedStatement ps3 = con.prepareStatement("update bank set balance=? where accountnum=?");
+    		ps3.setInt(1, x1+amount );
+    		ps3.setInt(2, number2);
+    		ps3.execute();
+
+    		System.out.println("Updated");
+
+
+
+    		}
+    		//Scanner sc = new Scanner(System.in);
+    		else
+    		{
+    		System.out.println("not enough balance");
+    		}
+		}
+    		catch (Exception e) {
             System.out.println(e);
-        }	
+    		}	
+		
+		
 	}
-	public static  void secondpage()
+	
+	public static  void secondpage() throws SQLException
 	
 	{
 		int ch2;
@@ -113,7 +151,7 @@ abstract class app
 
 }
 public class Assignment1 {
-	public static void main(String args[])
+	public static void main(String args[]) throws SQLException
 	{
 		int ch1=0,ch2=0;
 //		app e=new app();
